@@ -1,6 +1,7 @@
 import ArticleCard from "@/Components/articleCard";
 import Link from "next/link";
 import NavBar from "@/Components/navBar";
+import { notFound } from "next/navigation";
 
 async function getArticle(id: string): Promise<Article | undefined> {
   // In a real application, this would be an API call
@@ -26,13 +27,20 @@ async function getArticle(id: string): Promise<Article | undefined> {
     },
   ];
 
-  return articles.find((article) => article.id === parseInt(id));
+  const article = articles.find((article) => article.id === parseInt(id));
+
+  if (!article) {
+    notFound();
+  }
+
+  return article;
 }
 
 interface Article {
   id: number;
   title: string;
   content: string;
+  urlToImage: string;
 }
 
 interface ArticleParams {
@@ -71,6 +79,7 @@ export default async function Article({ params }: ArticleParams) {
           title={article.title}
           summary={article.content}
           link={`/article/${article.id}`}
+          urlToImage={article.urlToImage}
         />
         <div className="mt-6">
           <Link

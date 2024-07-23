@@ -1,46 +1,60 @@
+"use client";
+
 import ArticleCard from "@/Components/articleCard";
 import Link from "next/link";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import NavBar from "@/Components/navBar";
 import Footer from "@/Components/footer";
+import { useCachedArticles } from "@/data/data";
 
 interface Article {
   id: number;
   title: string;
-  summary: string;
-  link: string;
+  description: string;
+  url: string;
+  urlToImage: string;
+  category: string;
 }
 
-async function getArticles(): Promise<Article[]> {
-  // In a real application, this would be an API call
-  // For now, we'll return mock data
-  return [
-    {
-      id: 1,
-      title: "Breaking News: Major Scientific Discovery",
-      summary:
-        "Scientists have made a groundbreaking discovery that could revolutionize our understanding of the universe.",
-      link: "/article/1",
-    },
-    {
-      id: 2,
-      title: "Tech Giant Announces New Product Line",
-      summary:
-        "A leading tech company has unveiled its latest range of innovative products, set to hit the market next month.",
-      link: "/article/2",
-    },
-    {
-      id: 3,
-      title: "Global Climate Summit Reaches Historic Agreement",
-      summary:
-        "World leaders have come to a consensus on ambitious climate goals during the latest international summit.",
-      link: "/article/3",
-    },
-  ];
-}
+export default function Home(): React.ReactElement {
+  const articles = useCachedArticles();
+  const [limitedArticles, setLimitedArticles] = useState<Article[]>([]);
 
-export default async function Home(): Promise<React.ReactElement> {
-  const articles = await getArticles();
+  useEffect(() => {
+    const fetchAndValidateImages = async () => {
+      const validatedArticles = await Promise.all(
+        // Limit the number of articles to 10
+        articles.slice(0, 15).map(async (article) => {
+          if (!article.urlToImage) {
+            console.warn(`No image URL for article ${article.id}`);
+            return { ...article, urlToImage: "/placeholder-image.jpg" };
+          }
+
+          try {
+            const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(
+              article.urlToImage
+            )}`;
+            const response = await fetch(proxyUrl, {
+              method: "HEAD",
+            });
+            if (!response.ok) {
+              throw new Error(`Failed to load image: ${response.statusText}`);
+            }
+            return article;
+          } catch (error) {
+            console.warn(
+              `Error loading image for article ${article.id}:`,
+              error instanceof Error ? error.message : String(error)
+            );
+            return { ...article, urlToImage: "/placeholder-image.jpg" };
+          }
+        })
+      );
+      setLimitedArticles(validatedArticles);
+    };
+
+    fetchAndValidateImages();
+  }, [articles]);
 
   return (
     <main className="min-h-screen bg-gradient-to-r from-gray-100 to-gray-300 py-12 px-4 sm:px-6 lg:px-8">
@@ -50,13 +64,16 @@ export default async function Home(): Promise<React.ReactElement> {
           Latest News
         </h1>
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
-          {articles.map((article) => (
-            <Link key={article.id} href={article.link} className="block">
+          {limitedArticles.map((article, index) => (
+            <Link key={article.id} href={article.url} className="block">
               <ArticleCard
                 id={article.id}
                 title={article.title}
-                summary={article.summary}
-                link={article.link}
+                summary={article.description}
+                link={article.url}
+                urlToImage={article.urlToImage}
+                category={article.category}
+                priority={index < 3} // Prioritize loading for the first 3 images
               />
             </Link>
           ))}

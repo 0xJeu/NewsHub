@@ -1,6 +1,6 @@
 import React from "react";
 import TestPage from "./testPage";
-import TV404Page from "@/Components/not-found";
+import TV404Page from "@/app/not-found";
 
 export default function CategoriesPage({ status }: { status?: number }) {
   if (status === 404) {
