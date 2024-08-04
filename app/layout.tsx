@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import RemoveGrammarly from "@/components/RemoveGrammarly";
+import RemoveGrammarly from "@/Components/RemoveGrammarly";
 
 const inter = Inter({ subsets: ["latin"] });
 
