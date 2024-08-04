@@ -10,6 +10,7 @@ interface Article {
   category: string;
 }
 
+// Array of search terms for fetching relevant tech and innovation news articles
 const query = [
   "google",
   "apple",
@@ -32,7 +33,7 @@ const fetchArticles = async (): Promise<Article[]> => {
   const response = await axios.get(
     `https://newsapi.org/v2/everything?q=${query.join(
       " OR "
-    )}&from=2024-07-21&to=2024-07-21&sortBy=popularity&apiKey=116a22b0ce47436481d7393237908bab`
+    )}&apiKey=116a22b0ce47436481d7393237908bab`
   );
   return response.data.articles.map((article: any, index: number) => ({
     id: index,
@@ -94,7 +95,7 @@ const useCachedArticles = () => {
     const cachedArticles = localStorage.getItem("articles");
     const cachedTimestamp = localStorage.getItem("articlesTimestamp");
     const currentTime = new Date().getTime();
-    const cacheExpirationTime = 60 * 60 * 1000; // 1 hour in milliseconds
+    const cacheExpirationTime = 60 * 60 * 1000; // 60 minutes in milliseconds
 
     if (
       cachedArticles &&
@@ -104,8 +105,13 @@ const useCachedArticles = () => {
       setArticles(JSON.parse(cachedArticles));
     } else {
       fetchArticles().then((fetchedArticles) => {
-        setArticles(fetchedArticles);
-        localStorage.setItem("articles", JSON.stringify(fetchedArticles));
+        const filteredArticles = fetchedArticles.filter(
+          (article) =>
+            !article.title.includes("[Removed]") &&
+            !article.description.includes("[Removed]")
+        );
+        setArticles(filteredArticles);
+        localStorage.setItem("articles", JSON.stringify(filteredArticles));
         localStorage.setItem("articlesTimestamp", currentTime.toString());
       });
     }

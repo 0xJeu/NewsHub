@@ -23,7 +23,7 @@ export default function Home(): React.ReactElement {
   useEffect(() => {
     const fetchAndValidateImages = async () => {
       const validatedArticles = await Promise.all(
-        // Limit the number of articles to 10
+        // Limit the number of articles to #
         articles.slice(0, 15).map(async (article) => {
           if (!article.urlToImage) {
             console.warn(`No image URL for article ${article.id}`);

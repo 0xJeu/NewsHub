@@ -35,6 +35,22 @@ export async function GET(request: NextRequest) {
 
   const decodedUrl = decodeURIComponent(url);
 
+  // Add this check
+  if (decodedUrl.startsWith("/")) {
+    // For local files, read from the public directory
+    const filePath = path.join(process.cwd(), "public", decodedUrl);
+    const fileBuffer = await fs.readFile(filePath);
+    const contentType = "image/jpeg"; // Adjust if needed
+
+    return new NextResponse(fileBuffer, {
+      status: 200,
+      headers: {
+        "Content-Type": contentType,
+        "Cache-Control": "public, max-age=31536000, immutable",
+      },
+    });
+  }
+
   try {
     const imageResponse = await fetchWithRetry(decodedUrl);
     const contentType = imageResponse.headers["content-type"] || "image/jpeg";

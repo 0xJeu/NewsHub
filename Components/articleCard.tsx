@@ -33,8 +33,9 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
         <Image
           src={proxyUrl}
           alt={title}
-          layout="fill"
-          objectFit="cover"
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          style={{ objectFit: "cover" }}
           className="rounded-t-xl"
           onError={handleImageError}
           priority={priority}
