@@ -32,6 +32,7 @@ export async function fetchArticles(page = 1, pageSize = 100, searchQuery?: stri
 
   const q = searchQuery || query.join(" OR ");
 
+  console.log(`Fetching articles with query: ${q}`);
   const response = await fetch(
     `https://newsapi.org/v2/everything?q=${q}&apiKey=${apiKey}&pageSize=${pageSize}&page=${page}&from=${fromDate}&sortBy=publishedAt&language=en`,
     { next: { revalidate: 3600, tags: ['articles'] } } // Cache for 1 hour
