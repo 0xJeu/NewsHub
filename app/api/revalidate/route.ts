@@ -4,12 +4,20 @@ import { NextRequest, NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
-  const token = request.nextUrl.searchParams.get('token');
-  console.log(`Revalidate request - Token received: '${token}'`);
-
-  // Check for a secret token to prevent unauthorized revalidation
-  // You should add REVALIDATE_TOKEN to your environment variables
+  let token = request.nextUrl.searchParams.get('token');
   const secret = process.env.REVALIDATE_TOKEN || "my-secret-token";
+
+  // Handle case where '=' is encoded as '%3D'
+  if (!token) {
+    for (const key of request.nextUrl.searchParams.keys()) {
+      if (key === `token=${secret}`) {
+        token = secret;
+        break;
+      }
+    }
+  }
+
+  console.log(`Revalidate request - Token received: '${token}'`);
 
   if (token !== secret) {
     return NextResponse.json({ message: 'Invalid token', received: token, expected: 'REVALIDATE_TOKEN' }, { status: 401 });
