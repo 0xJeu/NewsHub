@@ -5,13 +5,14 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get('token');
+  console.log(`Revalidate request - Token received: '${token}'`);
 
   // Check for a secret token to prevent unauthorized revalidation
   // You should add REVALIDATE_TOKEN to your environment variables
   const secret = process.env.REVALIDATE_TOKEN || "my-secret-token";
 
   if (token !== secret) {
-    return NextResponse.json({ message: 'Invalid token' }, { status: 401 });
+    return NextResponse.json({ message: 'Invalid token', received: token, expected: 'REVALIDATE_TOKEN' }, { status: 401 });
   }
 
   try {
