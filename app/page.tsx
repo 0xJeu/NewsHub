@@ -1,4 +1,5 @@
 import ArticleGrid from "@/components/ArticleGrid";
+import CategoryCardsGrid from "@/components/CategoryCardsGrid";
 import Link from "next/link";
 import Image from "next/image";
 import NavBar from "@/components/navBar";
@@ -21,7 +22,7 @@ export default async function Home() {
   const initialGridArticles = articles.slice(1, 13);
 
   return (
-    <main className="min-h-screen bg-slate-50">
+    <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <NavBar />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -76,8 +77,8 @@ export default async function Home() {
         )}
 
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-3xl font-bold text-slate-900">Latest News</h2>
-          <Link href="/news" className="text-primary-600 font-semibold hover:text-primary-700 flex items-center">
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Latest News</h2>
+          <Link href="/news" className="text-primary-600 dark:text-primary-400 font-semibold hover:text-primary-700 dark:hover:text-primary-300 flex items-center">
             View all <span className="ml-1">→</span>
           </Link>
         </div>
@@ -90,34 +91,13 @@ export default async function Home() {
         {/* Categories Section */}
         <section className="mb-20">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Explore Categories</h2>
-            <p className="text-slate-500 max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-4">Explore Categories</h2>
+            <p className="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
               Dive deep into specific topics that matter to you. From technology breakthroughs to global politics.
             </p>
           </div>
           
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {[
-              { name: "Politics", slug: "politics", icon: "🏛️", color: "bg-blue-50 text-blue-700 border-blue-100" },
-              { name: "Technology", slug: "technology", icon: "💻", color: "bg-purple-50 text-purple-700 border-purple-100" },
-              { name: "Science", slug: "science", icon: "🔬", color: "bg-green-50 text-green-700 border-green-100" },
-              { name: "Entertainment", slug: "entertainment", icon: "🎬", color: "bg-pink-50 text-pink-700 border-pink-100" },
-              { name: "Sports", slug: "sports", icon: "⚽", color: "bg-orange-50 text-orange-700 border-orange-100" },
-              { name: "Health", slug: "health", icon: "🏥", color: "bg-red-50 text-red-700 border-red-100" }
-            ].map((category) => (
-              <Link
-                key={category.name}
-                href={`/categories/${category.slug}`}
-                className={`group p-8 rounded-2xl border ${category.color} hover:shadow-md transition-all duration-300 text-center`}
-              >
-                <div className="text-4xl mb-3">{category.icon}</div>
-                <h3 className="text-xl font-bold mb-2">{category.name}</h3>
-                <span className="text-sm font-medium opacity-70 group-hover:opacity-100 transition-opacity">
-                  Browse Articles →
-                </span>
-              </Link>
-            ))}
-          </div>
+          <CategoryCardsGrid variant="home" />
         </section>
 
         {/* Newsletter Section */}
