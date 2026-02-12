@@ -118,6 +118,7 @@ export function findSourceConfig(sourceIdentifier?: string): SourceConfig | unde
   return QUALITY_SOURCES.find(source =>
     source.domain.toLowerCase().includes(normalized) ||
     source.name.toLowerCase().includes(normalized) ||
+    normalized.includes(source.name.toLowerCase()) ||
     normalized.includes(source.domain.toLowerCase())
   );
 }

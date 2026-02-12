@@ -94,7 +94,10 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       {/* Articles Grid */}
       <section className="max-w-7xl mx-auto px-4 py-12">
         {articles.length > 0 ? (
-          <ArticleGrid initialArticles={articles} />
+          <ArticleGrid
+            initialArticles={articles}
+            loadMoreContext={{ strategy: "category", categorySlug: category.slug }}
+          />
         ) : (
           <div className="text-center py-20">
             <div className="text-6xl mb-4">{category.icon}</div>

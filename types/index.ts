@@ -37,6 +37,7 @@ export type FetchStrategy = 'homepage' | 'category' | 'search';
 
 export interface FetchOptions {
   searchQuery?: string;
+  homepageQuery?: string;
   category?: CategoryConfig;
   page?: number;
   pageSize?: number;

@@ -1,15 +1,17 @@
-import ArticleCard from "@/components/articleCard";
 import ArticleGrid from "@/components/ArticleGrid";
 import Link from "next/link";
 import Image from "next/image";
 import NavBar from "@/components/navBar";
 import Footer from "@/components/footer";
 import { fetchArticles } from "@/lib/api";
+import { buildRotatingQuery } from "@/lib/config/queries";
 import { getPlaceholderForSeed } from "@/lib/placeholders";
 
 export default async function Home() {
+  const homepageQuery = buildRotatingQuery();
+
   // Fetch articles using 'homepage' strategy (trending + recent, scored and ranked)
-  const articles = await fetchArticles('homepage');
+  const articles = await fetchArticles('homepage', { homepageQuery });
 
   // Articles are already sorted by score (highest first)
   // Hero article: highest-scored article
@@ -80,7 +82,10 @@ export default async function Home() {
           </Link>
         </div>
 
-        <ArticleGrid initialArticles={initialGridArticles} />
+        <ArticleGrid
+          initialArticles={initialGridArticles}
+          loadMoreContext={{ strategy: "homepage", homepageQuery }}
+        />
 
         {/* Categories Section */}
         <section className="mb-20">

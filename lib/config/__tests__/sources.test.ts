@@ -173,6 +173,12 @@ describe('Source Configuration', () => {
       expect(source?.domain).toBe('techcrunch.com');
     });
 
+    it('should match configured short names inside longer provider names', () => {
+      const source = findSourceConfig('BBC News');
+      expect(source).toBeDefined();
+      expect(source?.name).toBe('BBC');
+    });
+
     it('should return undefined for unknown source', () => {
       const source = findSourceConfig('unknown-source.com');
       expect(source).toBeUndefined();

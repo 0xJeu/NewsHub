@@ -38,7 +38,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </div>
 
         {sortedArticles.length > 0 ? (
-          <ArticleGrid initialArticles={sortedArticles} />
+          <ArticleGrid
+            initialArticles={sortedArticles}
+            loadMoreContext={{ strategy: "search", searchQuery: query }}
+          />
         ) : (
           <div className="text-center py-20">
             <p className="text-slate-500 text-lg">No articles found matching your query.</p>

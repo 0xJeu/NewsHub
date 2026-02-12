@@ -6,11 +6,12 @@ import { Article } from "@/types";
 /**
  * Load more articles for homepage
  */
-export async function loadMoreArticles(page: number): Promise<Article[]> {
+export async function loadMoreArticles(page: number, homepageQuery: string): Promise<Article[]> {
   // Use homepage strategy with pagination
   const articles = await fetchArticles('homepage', {
     page,
-    pageSize: 12
+    pageSize: 12,
+    homepageQuery
   });
 
   // Articles are already sorted by score

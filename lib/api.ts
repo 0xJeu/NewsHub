@@ -44,7 +44,7 @@ function buildFetchConfig(strategy: FetchStrategy, options?: FetchOptions): Fetc
   switch (strategy) {
     case 'homepage':
       return {
-        query: buildRotatingQuery(),  // Smart rotating queries
+        query: options?.homepageQuery || buildRotatingQuery(),  // Keep query stable for pagination when provided
         domains: allDomains,
         sortBy: 'popularity',  // Trending articles
         from: options?.fromDate || getLast3Days(),

@@ -238,6 +238,37 @@ describe('API Functions', () => {
       const fetchCall = (global.fetch as jest.Mock).mock.calls[0][0];
       expect(fetchCall).toContain('page=2');
     });
+
+    it('should use provided homepageQuery for homepage strategy', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockNewsAPIResponse,
+      });
+
+      await fetchArticles('homepage', { homepageQuery: 'federal reserve inflation' });
+
+      const fetchCall = (global.fetch as jest.Mock).mock.calls[0][0];
+      const url = new URL(fetchCall);
+      expect(url.searchParams.get('q')).toBe('federal reserve inflation');
+    });
+
+    it('should keep homepage query stable across paginated calls when provided', async () => {
+      (global.fetch as jest.Mock).mockResolvedValue({
+        ok: true,
+        json: async () => mockNewsAPIResponse,
+      });
+
+      await fetchArticles('homepage', { page: 1, homepageQuery: 'earnings guidance outlook' });
+      await fetchArticles('homepage', { page: 2, homepageQuery: 'earnings guidance outlook' });
+
+      const firstUrl = new URL((global.fetch as jest.Mock).mock.calls[0][0]);
+      const secondUrl = new URL((global.fetch as jest.Mock).mock.calls[1][0]);
+
+      expect(firstUrl.searchParams.get('q')).toBe('earnings guidance outlook');
+      expect(secondUrl.searchParams.get('q')).toBe('earnings guidance outlook');
+      expect(firstUrl.searchParams.get('page')).toBe('1');
+      expect(secondUrl.searchParams.get('page')).toBe('2');
+    });
   });
 
   describe('fetchArticlesByCategory', () => {
