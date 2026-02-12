@@ -20,6 +20,7 @@ function SearchBar() {
     };
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleSearch = useCallback(
     debounce((term: string) => {
       const params = new URLSearchParams(searchParams);
@@ -28,7 +29,7 @@ function SearchBar() {
       } else {
         params.delete("q");
       }
-      
+
       startTransition(() => {
         // If we are not on the search page, we should go there when searching
         if (window.location.pathname !== '/search' && term) {
