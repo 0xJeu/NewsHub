@@ -100,15 +100,15 @@ function generateMockArticles(count: number = 20): RawArticle[] {
     { name: 'The New York Times' }
   ];
 
-  // Use placeholder.com which actually works
+  // Use Unsplash placeholder images which are reliable
   const images = [
-    'https://via.placeholder.com/800x600/4F46E5/ffffff?text=Technology',
-    'https://via.placeholder.com/800x600/10B981/ffffff?text=Science',
-    'https://via.placeholder.com/800x600/EF4444/ffffff?text=Politics',
-    'https://via.placeholder.com/800x600/F59E0B/ffffff?text=Business',
-    'https://via.placeholder.com/800x600/8B5CF6/ffffff?text=Entertainment',
-    'https://via.placeholder.com/800x600/06B6D4/ffffff?text=Sports',
-    'https://via.placeholder.com/800x600/EC4899/ffffff?text=Health'
+    'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=600&fit=crop',  // Technology
+    'https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=800&h=600&fit=crop',  // Science
+    'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=800&h=600&fit=crop',  // Politics
+    'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=600&fit=crop',  // Business
+    'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=800&h=600&fit=crop',  // Entertainment
+    'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&h=600&fit=crop',  // Sports
+    'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=800&h=600&fit=crop'   // Health
   ];
 
   return Array.from({ length: count }, (_, i) => {
