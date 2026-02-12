@@ -85,7 +85,6 @@ export default async function Home() {
 
         <ArticleGrid
           initialArticles={initialGridArticles}
-          loadMoreContext={{ strategy: "homepage", homepageQuery }}
         />
 
         {/* Categories Section */}

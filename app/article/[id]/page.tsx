@@ -1,6 +1,6 @@
-import ArticleCard from "@/Components/articleCard";
+import ArticleCard from "@/components/articleCard";
 import Link from "next/link";
-import NavBar from "@/Components/navBar";
+import NavBar from "@/components/navBar";
 import { notFound } from "next/navigation";
 
 async function getArticle(id: string): Promise<Article | undefined> {
@@ -12,18 +12,21 @@ async function getArticle(id: string): Promise<Article | undefined> {
       title: "Breaking News: Major Scientific Discovery",
       content:
         "Scientists have made a groundbreaking discovery that could revolutionize our understanding of the universe. The discovery, made by a team of researchers at a leading university, involves a new particle that challenges our current models of physics. This finding could have far-reaching implications for our understanding of dark matter, quantum mechanics, and the origins of the universe. Experts in the field are calling it one of the most significant scientific breakthroughs of the century.",
+      urlToImage: "/api/placeholder/800/600",
     },
     {
       id: 2,
       title: "Tech Giant Announces New Product Line",
       content:
         "A leading tech company has unveiled its latest range of innovative products, set to hit the market next month. The new line includes cutting-edge smartphones, tablets, and wearable devices that promise to redefine user experience and connectivity. Key features include advanced AI capabilities, improved battery life, and sustainable manufacturing processes. Industry analysts predict these products will significantly impact the tech landscape and consumer behavior in the coming years.",
+      urlToImage: "/api/placeholder/800/600",
     },
     {
       id: 3,
       title: "Global Climate Summit Reaches Historic Agreement",
       content:
         "World leaders have come to a consensus on ambitious climate goals during the latest international summit. The agreement, which involves over 190 countries, sets unprecedented targets for reducing greenhouse gas emissions and transitioning to renewable energy sources. Key points include a commitment to achieve carbon neutrality by 2050, substantial increases in funding for climate adaptation in developing countries, and stricter regulations on industrial emissions. Environmental experts hail this as a crucial step towards combating climate change and preserving the planet for future generations.",
+      urlToImage: "/api/placeholder/800/600",
     },
   ];
 
@@ -80,6 +83,8 @@ export default async function Article({ params }: ArticleParams) {
           summary={article.content}
           link={`/article/${article.id}`}
           urlToImage={article.urlToImage}
+          publishedAt={new Date().toISOString()}
+          category="General"
         />
         <div className="mt-6">
           <Link

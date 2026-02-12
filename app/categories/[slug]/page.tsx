@@ -96,7 +96,6 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         {articles.length > 0 ? (
           <ArticleGrid
             initialArticles={articles}
-            loadMoreContext={{ strategy: "category", categorySlug: category.slug }}
           />
         ) : (
           <div className="text-center py-20">
