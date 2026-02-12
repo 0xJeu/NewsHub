@@ -87,6 +87,49 @@ function buildFetchConfig(strategy: FetchStrategy, options?: FetchOptions): Fetc
 }
 
 /**
+ * Generate mock articles for development when API is rate-limited
+ */
+function generateMockArticles(count: number = 20): RawArticle[] {
+  const categories = ['Technology', 'Science', 'Politics', 'Business', 'Entertainment', 'Sports', 'Health'];
+  const sources = [
+    { name: 'TechCrunch' },
+    { name: 'The Verge' },
+    { name: 'Reuters' },
+    { name: 'BBC News' },
+    { name: 'CNN' },
+    { name: 'The New York Times' }
+  ];
+
+  // Use placeholder.com which actually works
+  const images = [
+    'https://via.placeholder.com/800x600/4F46E5/ffffff?text=Technology',
+    'https://via.placeholder.com/800x600/10B981/ffffff?text=Science',
+    'https://via.placeholder.com/800x600/EF4444/ffffff?text=Politics',
+    'https://via.placeholder.com/800x600/F59E0B/ffffff?text=Business',
+    'https://via.placeholder.com/800x600/8B5CF6/ffffff?text=Entertainment',
+    'https://via.placeholder.com/800x600/06B6D4/ffffff?text=Sports',
+    'https://via.placeholder.com/800x600/EC4899/ffffff?text=Health'
+  ];
+
+  return Array.from({ length: count }, (_, i) => {
+    const category = categories[i % categories.length];
+    const source = sources[i % sources.length];
+    const now = new Date();
+    const publishedAt = new Date(now.getTime() - Math.random() * 24 * 60 * 60 * 1000).toISOString();
+
+    return {
+      source,
+      title: `${category} News: Sample Article ${i + 1}`,
+      description: `This is a sample article about ${category.toLowerCase()}. The API has been rate-limited, so this mock data is being shown for development purposes. This article contains interesting information about current events in the ${category.toLowerCase()} sector.`,
+      url: `https://example.com/article-${i + 1}`,
+      urlToImage: images[i % images.length],
+      publishedAt,
+      content: `Full content for article ${i + 1} would appear here...`
+    };
+  });
+}
+
+/**
  * Fetch articles from NewsAPI with given configuration
  */
 async function fetchFromNewsAPI(config: FetchConfig, apiKey: string): Promise<RawArticle[]> {
@@ -122,37 +165,51 @@ async function fetchFromNewsAPI(config: FetchConfig, apiKey: string): Promise<Ra
     strategy: config.sortBy
   });
 
-  const response = await fetch(url, {
-    next: {
-      revalidate: config.sortBy === 'popularity' ? 3600 : 7200, // 1h for homepage, 2h for others
-      tags: ['articles']
+  try {
+    const response = await fetch(url, {
+      next: {
+        revalidate: config.sortBy === 'popularity' ? 3600 : 7200, // 1h for homepage, 2h for others
+        tags: ['articles']
+      }
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      
+      // Check if it's a rate limit error
+      if (response.status === 429) {
+        console.warn('⚠️ API Rate Limited - Using mock data for development');
+        return generateMockArticles(config.pageSize);
+      }
+      
+      console.error(`Failed to fetch articles: ${response.statusText}`, errorText);
+      throw new Error(`Failed to fetch articles: ${response.statusText}`);
     }
-  });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error(`Failed to fetch articles: ${response.statusText}`, errorText);
-    throw new Error(`Failed to fetch articles: ${response.statusText}`);
+    const data = await response.json();
+
+    if (!data.articles) {
+      return [];
+    }
+
+    console.log(`✅ Fetched ${data.articles.length} articles from NewsAPI`);
+
+    // Filter out removed/invalid articles
+    return data.articles.filter(
+      (article: any) =>
+        article.title &&
+        article.description &&
+        !article.title.includes("[Removed]") &&
+        !article.description.includes("[Removed]") &&
+        article.title !== "[Removed]" &&
+        article.description !== "[Removed]"
+    );
+  } catch (error) {
+    // If fetch fails completely, return mock data for development
+    console.warn('⚠️ API request failed - Using mock data for development');
+    console.error(error);
+    return generateMockArticles(config.pageSize);
   }
-
-  const data = await response.json();
-
-  if (!data.articles) {
-    return [];
-  }
-
-  console.log(`✅ Fetched ${data.articles.length} articles from NewsAPI`);
-
-  // Filter out removed/invalid articles
-  return data.articles.filter(
-    (article: any) =>
-      article.title &&
-      article.description &&
-      !article.title.includes("[Removed]") &&
-      !article.description.includes("[Removed]") &&
-      article.title !== "[Removed]" &&
-      article.description !== "[Removed]"
-  );
 }
 
 /**
