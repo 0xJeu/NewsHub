@@ -33,21 +33,37 @@ export async function GET(request: NextRequest) {
 
   try {
     const startTime = Date.now();
-    revalidateTag('articles');
-    revalidatePath('/');
+    const category = request.nextUrl.searchParams.get('category');
+    const tagsInvalidated: string[] = [];
+
+    if (category) {
+      // Invalidate a specific category only
+      revalidateTag(`category-${category}`);
+      revalidatePath(`/categories/${category}`);
+      tagsInvalidated.push(`category-${category}`);
+    } else {
+      // Invalidate everything
+      revalidateTag('articles');
+      revalidatePath('/');
+      tagsInvalidated.push('articles');
+    }
+
     const duration = Date.now() - startTime;
-    
+
     logger.info('Cache successfully revalidated', {
-      tags: ['articles'],
-      paths: ['/'],
+      tags: tagsInvalidated,
+      category: category || 'all',
       duration,
       timestamp: new Date().toISOString()
     }, 'REVALIDATE');
-    
-    return NextResponse.json({ 
-      revalidated: true, 
+
+    return NextResponse.json({
+      revalidated: true,
       now: Date.now(),
-      message: 'Cache flushed for articles and home path' 
+      tags: tagsInvalidated,
+      message: category
+        ? `Cache flushed for category: ${category}`
+        : 'Cache flushed for all articles',
     });
   } catch (err) {
     logger.error('Cache revalidation failed', err, {

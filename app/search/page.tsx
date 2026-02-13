@@ -1,7 +1,7 @@
 import ArticleGrid from "@/components/ArticleGrid";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
-import { searchArticles } from "@/lib/api";
+import { getCachedSearchArticles } from "@/lib/cache";
 
 interface SearchPageProps {
   searchParams: { [key: string]: string | string[] | undefined };
@@ -10,8 +10,8 @@ interface SearchPageProps {
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const query = typeof searchParams.q === "string" ? searchParams.q : "";
 
-  // Fetch using 'search' strategy (relevancy sorting)
-  const articles = query ? await searchArticles(query, { pageSize: 100 }) : [];
+  // Fetch using cached search strategy (relevancy sorting)
+  const articles = query ? await getCachedSearchArticles(query) : [];
 
   // Articles are already sorted by relevancy and score
   const sortedArticles = articles;

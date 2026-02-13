@@ -1,12 +1,12 @@
 import ArticleGrid from "@/components/ArticleGrid";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
-import { fetchArticles } from "@/lib/api";
+import { getCachedHomepageArticles } from "@/lib/cache";
 import { buildRotatingQuery } from "@/lib/config/queries";
 
 export default async function NewsPage() {
   const homepageQuery = buildRotatingQuery();
-  const articles = await fetchArticles("homepage", { homepageQuery });
+  const articles = await getCachedHomepageArticles(homepageQuery);
   
   // Ensure articles are sorted by publishedAt (descending)
   const sortedArticles = articles.sort((a, b) => {

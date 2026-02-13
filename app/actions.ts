@@ -1,18 +1,18 @@
 "use server";
 
-import { fetchArticles, fetchArticlesByCategory, searchArticles } from "@/lib/api";
+import { getCachedHomepageArticles, getCachedCategoryArticles, getCachedSearchArticles } from "@/lib/cache";
 import { Article } from "@/types";
 
 /**
  * Load more articles for homepage
  */
 export async function loadMoreArticles(page: number, homepageQuery?: string): Promise<Article[]> {
-  // Use homepage strategy with pagination
-  const articles = await fetchArticles('homepage', {
+  // Use cached homepage strategy with pagination
+  const articles = await getCachedHomepageArticles(
+    homepageQuery || 'latest news',
     page,
-    pageSize: 12,
-    homepageQuery: homepageQuery || 'latest news'
-  });
+    12,
+  );
 
   // Articles are already sorted by score
   return articles;
@@ -25,10 +25,7 @@ export async function loadMoreCategoryArticles(
   categorySlug: string,
   page: number
 ): Promise<Article[]> {
-  const articles = await fetchArticlesByCategory(categorySlug, {
-    page,
-    pageSize: 12
-  });
+  const articles = await getCachedCategoryArticles(categorySlug, page, 12);
 
   return articles;
 }
@@ -40,10 +37,7 @@ export async function loadMoreSearchResults(
   query: string,
   page: number
 ): Promise<Article[]> {
-  const articles = await searchArticles(query, {
-    page,
-    pageSize: 12
-  });
+  const articles = await getCachedSearchArticles(query, page, 12);
 
   return articles;
 }

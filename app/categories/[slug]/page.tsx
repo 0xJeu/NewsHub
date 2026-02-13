@@ -1,4 +1,4 @@
-import { fetchArticlesByCategory } from '@/lib/api';
+import { getCachedCategoryArticles } from '@/lib/cache';
 import { CATEGORIES, getCategoryBySlug } from '@/lib/config/categories';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
@@ -49,8 +49,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     notFound();
   }
 
-  // Fetch articles for this category
-  const articles = await fetchArticlesByCategory(category.slug);
+  // Fetch articles for this category (cached with per-category tag)
+  const articles = await getCachedCategoryArticles(category.slug);
 
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-slate-950">

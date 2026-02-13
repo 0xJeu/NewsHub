@@ -182,12 +182,10 @@ async function fetchFromNewsAPI(config: FetchConfig, apiKey: string): Promise<Ra
   });
 
   try {
-    const response = await fetch(url, {
-      next: {
-        revalidate: config.sortBy === 'popularity' ? 3600 : 7200, // 1h for homepage, 2h for others
-        tags: ['articles']
-      }
-    });
+    // No fetch-level caching — the outer unstable_cache layer (lib/cache.ts)
+    // is the single cache boundary. This ensures revalidation fetches truly
+    // fresh data from NewsAPI instead of serving a stale inner-cache response.
+    const response = await fetch(url, { cache: 'no-store' });
 
     if (!response.ok) {
       const errorText = await response.text();

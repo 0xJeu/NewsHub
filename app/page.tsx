@@ -4,15 +4,15 @@ import Link from "next/link";
 import Image from "next/image";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
-import { fetchArticles } from "@/lib/api";
+import { getCachedHomepageArticles } from "@/lib/cache";
 import { buildRotatingQuery } from "@/lib/config/queries";
 import { getPlaceholderForSeed } from "@/lib/placeholders";
 
 export default async function Home() {
   const homepageQuery = buildRotatingQuery();
 
-  // Fetch articles using 'homepage' strategy (trending + recent, scored and ranked)
-  const articles = await fetchArticles('homepage', { homepageQuery });
+  // Fetch articles using cached homepage strategy (trending + recent, scored and ranked)
+  const articles = await getCachedHomepageArticles(homepageQuery);
 
   // Articles are already sorted by score (highest first)
   // Hero article: highest-scored article
