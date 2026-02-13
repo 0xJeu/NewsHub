@@ -20,6 +20,9 @@
 .DS_Store
 *.pem
 
+# Build reports
+BUILD_REPORT.md
+
 # debug
 npm-debug.log*
 yarn-debug.log*
