@@ -1,9 +1,23 @@
 'use client';
 
 import { useTheme } from './ThemeProvider';
+import { useState, useEffect } from 'react';
 
 export default function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // Only render on client side after hydration
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Render placeholder during SSR to avoid hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 w-9 h-9" aria-hidden="true" />
+    );
+  }
 
   return (
     <button
