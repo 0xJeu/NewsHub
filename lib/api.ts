@@ -162,70 +162,96 @@ async function fetchFromNewsAPI(config: FetchConfig, apiKey: string): Promise<Ra
   }
 
   const url = `https://newsapi.org/v2/everything?${params.toString()}`;
+  const urlForLog = url.replace(/apiKey=[^&]+/, 'apiKey=***');
 
-  logger.api('Fetch request initiated', {
+  logger.api('NewsAPI fetch initiated', {
     status: 'start',
     endpoint: 'everything',
     metadata: {
+      url: urlForLog,
       query: config.query.substring(0, 100),
       sortBy: config.sortBy,
       domains: config.domains ? 'filtered' : 'all',
       pageSize: config.pageSize,
-      page: config.page
+      page: config.page,
+      dateRange: config.from ? `${config.from} to ${config.to || 'now'}` : 'all-time',
     }
   });
 
   // Track API usage
-  trackAPIRequest('everything', {
+  const usage = trackAPIRequest('everything', {
     query: config.query,
     strategy: config.sortBy
   });
 
+  logger.info('📊 API Usage tracked', {
+    callsToday: usage.count,
+    remaining: usage.remaining,
+    percentUsed: usage.percentage,
+    warning: usage.warning,
+  }, 'API_TRACKER');
+
   try {
+    const fetchStartTime = Date.now();
+
     // No fetch-level caching — the outer unstable_cache layer (lib/cache.ts)
     // is the single cache boundary. This ensures revalidation fetches truly
     // fresh data from NewsAPI instead of serving a stale inner-cache response.
     const response = await fetch(url, { cache: 'no-store' });
+    const fetchDuration = Date.now() - fetchStartTime;
+
+    logger.info('🌐 NewsAPI response received', {
+      statusCode: response.status,
+      fetchDuration,
+      headers: {
+        contentType: response.headers.get('content-type'),
+        cacheControl: response.headers.get('cache-control'),
+      }
+    }, 'API');
 
     if (!response.ok) {
       const errorText = await response.text();
-      
+
       // Check if it's a rate limit error
       if (response.status === 429) {
         logger.api('Rate limited by NewsAPI', {
           status: 'rate_limited',
           statusCode: response.status,
-          metadata: { fallback: 'mock_data', pageSize: config.pageSize }
+          metadata: {
+            fallback: 'mock_data',
+            pageSize: config.pageSize,
+            fetchDuration,
+          }
         });
         return generateMockArticles(config.pageSize);
       }
-      
+
       logger.error('Failed to fetch articles from NewsAPI', undefined, {
         statusCode: response.status,
         statusText: response.statusText,
-        errorText: errorText.substring(0, 200)
+        errorText: errorText.substring(0, 200),
+        fetchDuration,
+        url: urlForLog,
       }, 'API');
       throw new Error(`Failed to fetch articles: ${response.statusText}`);
     }
 
+    const parseStartTime = Date.now();
     const data = await response.json();
+    const parseDuration = Date.now() - parseStartTime;
 
     if (!data.articles) {
-      logger.warn('No articles returned from NewsAPI', { totalResults: data.totalResults || 0 }, 'API');
+      logger.warn('No articles returned from NewsAPI', {
+        totalResults: data.totalResults || 0,
+        status: data.status,
+        message: data.message,
+      }, 'API');
       return [];
     }
 
-    logger.api('Articles fetched successfully', {
-      status: 'success',
-      metadata: {
-        count: data.articles.length,
-        totalResults: data.totalResults,
-        query: config.query.substring(0, 50)
-      }
-    });
-
+    const filterStartTime = Date.now();
     // Filter out removed/invalid articles
-    return data.articles.filter(
+    const validArticles = data.articles.filter(
       (article: any) =>
         article.title &&
         article.description &&
@@ -234,6 +260,27 @@ async function fetchFromNewsAPI(config: FetchConfig, apiKey: string): Promise<Ra
         article.title !== "[Removed]" &&
         article.description !== "[Removed]"
     );
+    const filterDuration = Date.now() - filterStartTime;
+    const totalDuration = Date.now() - fetchStartTime;
+
+    logger.api('Articles fetched successfully from NewsAPI', {
+      status: 'success',
+      metadata: {
+        rawCount: data.articles.length,
+        validCount: validArticles.length,
+        removedCount: data.articles.length - validArticles.length,
+        totalResults: data.totalResults,
+        query: config.query.substring(0, 50),
+        timing: {
+          fetch: fetchDuration,
+          parse: parseDuration,
+          filter: filterDuration,
+          total: totalDuration,
+        }
+      }
+    });
+
+    return validArticles;
   } catch (error) {
     // If fetch fails completely, return mock data for development
     logger.error('API request failed - Using mock data for development', error, {

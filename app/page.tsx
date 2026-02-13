@@ -7,12 +7,28 @@ import Footer from "@/components/Footer";
 import { getCachedHomepageArticles } from "@/lib/cache";
 import { buildRotatingQuery } from "@/lib/config/queries";
 import { getPlaceholderForSeed } from "@/lib/placeholders";
+import { logger } from "@/lib/logger";
 
 export default async function Home() {
   const homepageQuery = buildRotatingQuery();
 
+  logger.info('📰 Homepage: requesting articles', {
+    route: '/',
+    query: homepageQuery.substring(0, 50),
+    expectedCount: 100,
+  }, 'PAGE');
+
   // Fetch articles using cached homepage strategy (trending + recent, scored and ranked)
+  const startTime = Date.now();
   const articles = await getCachedHomepageArticles(homepageQuery);
+  const fetchDuration = Date.now() - startTime;
+
+  logger.info('📰 Homepage: articles received', {
+    route: '/',
+    articleCount: articles.length,
+    duration: fetchDuration,
+    cacheStatus: fetchDuration < 50 ? 'likely-hit' : 'likely-miss',
+  }, 'PAGE');
 
   // Articles are already sorted by score (highest first)
   // Hero article: highest-scored article

@@ -2,6 +2,7 @@ import ArticleGrid from "@/components/ArticleGrid";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import { getCachedSearchArticles } from "@/lib/cache";
+import { logger } from "@/lib/logger";
 
 interface SearchPageProps {
   searchParams: { [key: string]: string | string[] | undefined };
@@ -10,8 +11,27 @@ interface SearchPageProps {
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const query = typeof searchParams.q === "string" ? searchParams.q : "";
 
+  if (query) {
+    logger.info('🔍 Search: requesting results', {
+      route: '/search',
+      query: query.substring(0, 100),
+    }, 'PAGE');
+  }
+
   // Fetch using cached search strategy (relevancy sorting)
+  const startTime = Date.now();
   const articles = query ? await getCachedSearchArticles(query) : [];
+  const fetchDuration = Date.now() - startTime;
+
+  if (query) {
+    logger.info('🔍 Search: results received', {
+      route: '/search',
+      query: query.substring(0, 100),
+      resultCount: articles.length,
+      duration: fetchDuration,
+      cacheStatus: fetchDuration < 50 ? 'likely-hit' : 'likely-miss',
+    }, 'PAGE');
+  }
 
   // Articles are already sorted by relevancy and score
   const sortedArticles = articles;

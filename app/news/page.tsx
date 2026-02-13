@@ -3,10 +3,26 @@ import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import { getCachedHomepageArticles } from "@/lib/cache";
 import { buildRotatingQuery } from "@/lib/config/queries";
+import { logger } from "@/lib/logger";
 
 export default async function NewsPage() {
   const homepageQuery = buildRotatingQuery();
+
+  logger.info('📰 All News: requesting articles', {
+    route: '/news',
+    query: homepageQuery.substring(0, 50),
+  }, 'PAGE');
+
+  const startTime = Date.now();
   const articles = await getCachedHomepageArticles(homepageQuery);
+  const fetchDuration = Date.now() - startTime;
+
+  logger.info('📰 All News: articles received', {
+    route: '/news',
+    articleCount: articles.length,
+    duration: fetchDuration,
+    cacheStatus: fetchDuration < 50 ? 'likely-hit' : 'likely-miss',
+  }, 'PAGE');
   
   // Ensure articles are sorted by publishedAt (descending)
   const sortedArticles = articles.sort((a, b) => {

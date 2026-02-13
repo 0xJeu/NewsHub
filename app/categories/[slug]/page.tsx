@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import ArticleGrid from '@/components/ArticleGrid';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
+import { logger } from '@/lib/logger';
 
 interface CategoryPageProps {
   params: {
@@ -49,8 +50,24 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     notFound();
   }
 
+  logger.info('📂 Category: requesting articles', {
+    route: `/categories/${category.slug}`,
+    category: category.name,
+    categorySlug: category.slug,
+  }, 'PAGE');
+
   // Fetch articles for this category (cached with per-category tag)
+  const startTime = Date.now();
   const articles = await getCachedCategoryArticles(category.slug);
+  const fetchDuration = Date.now() - startTime;
+
+  logger.info('📂 Category: articles received', {
+    route: `/categories/${category.slug}`,
+    category: category.name,
+    articleCount: articles.length,
+    duration: fetchDuration,
+    cacheStatus: fetchDuration < 50 ? 'likely-hit' : 'likely-miss',
+  }, 'PAGE');
 
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
