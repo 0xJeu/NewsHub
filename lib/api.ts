@@ -133,6 +133,12 @@ function generateMockArticles(count: number = 20): RawArticle[] {
  * Fetch articles from NewsAPI with given configuration
  */
 async function fetchFromNewsAPI(config: FetchConfig, apiKey: string): Promise<RawArticle[]> {
+  // Check if we should use mock data (for development)
+  if (process.env.USE_MOCK_DATA === 'true') {
+    console.log('🎭 Using mock data (USE_MOCK_DATA=true)');
+    return generateMockArticles(config.pageSize);
+  }
+
   const params = new URLSearchParams({
     q: config.query,
     apiKey,
