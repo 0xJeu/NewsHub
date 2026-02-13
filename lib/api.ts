@@ -6,6 +6,7 @@ import { scoreArticle, RawArticle as ScorerRawArticle } from "./scoring/article-
 import { deduplicateArticles } from "./scoring/deduplication";
 import { assignCategory } from "./categorization/categorizer";
 import { trackAPIRequest, canMakeRequest } from "./monitoring/api-tracker";
+import { logger } from "./logger";
 
 /**
  * Main article fetching function with strategy-based approach
@@ -21,7 +22,7 @@ export async function fetchArticles(
 
   // Check API limit
   if (!canMakeRequest()) {
-    console.error('❌ API daily limit reached (500 requests)');
+    logger.error('API daily limit reached (500 requests)', undefined, undefined, 'API');
     return [];
   }
 
@@ -135,7 +136,7 @@ function generateMockArticles(count: number = 20): RawArticle[] {
 async function fetchFromNewsAPI(config: FetchConfig, apiKey: string): Promise<RawArticle[]> {
   // Check if we should use mock data (for development)
   if (process.env.USE_MOCK_DATA === 'true') {
-    console.log('🎭 Using mock data (USE_MOCK_DATA=true)');
+    logger.info('🎭 Using mock data (USE_MOCK_DATA=true)', { pageSize: config.pageSize }, 'API');
     return generateMockArticles(config.pageSize);
   }
 
@@ -162,8 +163,17 @@ async function fetchFromNewsAPI(config: FetchConfig, apiKey: string): Promise<Ra
 
   const url = `https://newsapi.org/v2/everything?${params.toString()}`;
 
-  console.log(`🔍 Fetching articles with query: ${config.query.substring(0, 100)}...`);
-  console.log(`📊 Sort by: ${config.sortBy} | Domains: ${config.domains ? 'filtered' : 'all'}`);
+  logger.api('Fetch request initiated', {
+    status: 'start',
+    endpoint: 'everything',
+    metadata: {
+      query: config.query.substring(0, 100),
+      sortBy: config.sortBy,
+      domains: config.domains ? 'filtered' : 'all',
+      pageSize: config.pageSize,
+      page: config.page
+    }
+  });
 
   // Track API usage
   trackAPIRequest('everything', {
@@ -184,21 +194,37 @@ async function fetchFromNewsAPI(config: FetchConfig, apiKey: string): Promise<Ra
       
       // Check if it's a rate limit error
       if (response.status === 429) {
-        console.warn('⚠️ API Rate Limited - Using mock data for development');
+        logger.api('Rate limited by NewsAPI', {
+          status: 'rate_limited',
+          statusCode: response.status,
+          metadata: { fallback: 'mock_data', pageSize: config.pageSize }
+        });
         return generateMockArticles(config.pageSize);
       }
       
-      console.error(`Failed to fetch articles: ${response.statusText}`, errorText);
+      logger.error('Failed to fetch articles from NewsAPI', undefined, {
+        statusCode: response.status,
+        statusText: response.statusText,
+        errorText: errorText.substring(0, 200)
+      }, 'API');
       throw new Error(`Failed to fetch articles: ${response.statusText}`);
     }
 
     const data = await response.json();
 
     if (!data.articles) {
+      logger.warn('No articles returned from NewsAPI', { totalResults: data.totalResults || 0 }, 'API');
       return [];
     }
 
-    console.log(`✅ Fetched ${data.articles.length} articles from NewsAPI`);
+    logger.api('Articles fetched successfully', {
+      status: 'success',
+      metadata: {
+        count: data.articles.length,
+        totalResults: data.totalResults,
+        query: config.query.substring(0, 50)
+      }
+    });
 
     // Filter out removed/invalid articles
     return data.articles.filter(
@@ -212,8 +238,10 @@ async function fetchFromNewsAPI(config: FetchConfig, apiKey: string): Promise<Ra
     );
   } catch (error) {
     // If fetch fails completely, return mock data for development
-    console.warn('⚠️ API request failed - Using mock data for development');
-    console.error(error);
+    logger.error('API request failed - Using mock data for development', error, {
+      fallback: 'mock_data',
+      pageSize: config.pageSize
+    }, 'API');
     return generateMockArticles(config.pageSize);
   }
 }
@@ -222,6 +250,8 @@ async function fetchFromNewsAPI(config: FetchConfig, apiKey: string): Promise<Ra
  * Process raw articles through scoring and deduplication pipeline
  */
 function processArticles(rawArticles: RawArticle[], options?: FetchOptions): Article[] {
+  const startTime = Date.now();
+  
   // 1. Score each article
   const scored: ScoredArticle[] = rawArticles.map(article => {
     const sourceConfig = findSourceConfig(article.source?.name);
@@ -234,12 +264,16 @@ function processArticles(rawArticles: RawArticle[], options?: FetchOptions): Art
     };
   });
 
-  console.log(`📊 Scored ${scored.length} articles`);
+  logger.pipeline('Scoring', { input: rawArticles.length, output: scored.length });
 
   // 2. Deduplicate (remove same story from multiple sources)
   const deduplicated = deduplicateArticles(scored);
 
-  console.log(`🔄 Deduplicated: ${scored.length} → ${deduplicated.length} articles`);
+  logger.pipeline('Deduplication', { 
+    input: scored.length, 
+    output: deduplicated.length,
+    metadata: { duplicatesRemoved: scored.length - deduplicated.length }
+  });
 
   // 3. Sort by score (highest first)
   deduplicated.sort((a, b) => b.score.total - a.score.total);
@@ -274,7 +308,12 @@ function processArticles(rawArticles: RawArticle[], options?: FetchOptions): Art
     };
   });
 
-  console.log(`✨ Processed ${articles.length} final articles`);
+  const duration = Date.now() - startTime;
+  logger.perf('Article processing pipeline', duration, {
+    inputArticles: rawArticles.length,
+    outputArticles: articles.length,
+    stages: ['scoring', 'deduplication', 'categorization', 'transformation']
+  });
 
   return articles;
 }

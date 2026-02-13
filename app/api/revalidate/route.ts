@@ -1,5 +1,6 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,16 +18,31 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  console.log(`Revalidate request - Token received: '${token}'`);
+  logger.info('Cache revalidation request received', {
+    tokenProvided: !!token,
+    url: request.url
+  }, 'REVALIDATE');
 
   if (token !== secret) {
+    logger.warn('Unauthorized cache revalidation attempt', {
+      tokenProvided: !!token,
+      url: request.url
+    }, 'REVALIDATE');
     return NextResponse.json({ message: 'Invalid token', received: token, expected: 'REVALIDATE_TOKEN' }, { status: 401 });
   }
 
   try {
+    const startTime = Date.now();
     revalidateTag('articles');
     revalidatePath('/');
-    console.log('Cache flushed for articles and home path at ' + new Date().toISOString());
+    const duration = Date.now() - startTime;
+    
+    logger.info('Cache successfully revalidated', {
+      tags: ['articles'],
+      paths: ['/'],
+      duration,
+      timestamp: new Date().toISOString()
+    }, 'REVALIDATE');
     
     return NextResponse.json({ 
       revalidated: true, 
@@ -34,6 +50,10 @@ export async function GET(request: NextRequest) {
       message: 'Cache flushed for articles and home path' 
     });
   } catch (err) {
+    logger.error('Cache revalidation failed', err, {
+      tags: ['articles'],
+      paths: ['/']
+    }, 'REVALIDATE');
     return NextResponse.json({ message: 'Error revalidating', error: String(err) }, { status: 500 });
   }
 }

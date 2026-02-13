@@ -5,6 +5,7 @@ import ArticleCard from "@/components/ArticleCard";
 import { loadMoreArticles } from "@/app/actions";
 import Link from "next/link";
 import { Article } from "@/types";
+import { logger } from "@/lib/logger";
 
 export default function ArticleGrid({ initialArticles }: { initialArticles: Article[] }) {
   const [articles, setArticles] = useState<Article[]>(initialArticles);
@@ -14,17 +15,28 @@ export default function ArticleGrid({ initialArticles }: { initialArticles: Arti
 
   const handleLoadMore = async () => {
     setIsLoading(true);
+    const startTime = Date.now();
+    
     try {
       const newArticles = await loadMoreArticles(page);
       
       if (newArticles.length === 0) {
         setHasMore(false);
+        logger.info('No more articles available', { page }, 'PAGINATION');
       } else {
         setArticles((prev) => [...prev, ...newArticles]);
         setPage((prev) => prev + 1);
+        
+        const duration = Date.now() - startTime;
+        logger.info('Articles loaded successfully', {
+          page,
+          articlesLoaded: newArticles.length,
+          totalArticles: articles.length + newArticles.length,
+          duration
+        }, 'PAGINATION');
       }
     } catch (error) {
-      console.error("Failed to load more articles:", error);
+      logger.error("Failed to load more articles", error, { page }, 'PAGINATION');
     } finally {
       setIsLoading(false);
     }

@@ -5,6 +5,8 @@
  * Provides warnings when approaching the limit.
  */
 
+import { logger } from '../logger';
+
 interface DailyUsage {
   date: string;
   count: number;
@@ -70,15 +72,29 @@ export function trackAPIRequest(
 
   // Log warnings
   if (warning) {
-    console.warn(
-      `⚠️ API limit warning: ${currentUsage.count}/${DAILY_LIMIT} requests used today (${Math.round(percentage)}%)`
+    logger.warn(
+      `⚠️ API limit warning: approaching daily limit`,
+      {
+        current: currentUsage.count,
+        limit: DAILY_LIMIT,
+        remaining,
+        percentage: Math.round(percentage)
+      },
+      'API_TRACKER'
     );
   }
 
   // Log every 50 requests
   if (currentUsage.count % 50 === 0) {
-    console.log(
-      `📊 API Usage: ${currentUsage.count}/${DAILY_LIMIT} requests (${Math.round(percentage)}% used)`
+    logger.info(
+      `📊 API Usage checkpoint`,
+      {
+        current: currentUsage.count,
+        limit: DAILY_LIMIT,
+        percentage: Math.round(percentage),
+        remaining
+      },
+      'API_TRACKER'
     );
   }
 
@@ -222,12 +238,13 @@ export function estimateRemainingCapacity(): {
  * Manual reset (for testing/admin purposes)
  */
 export function resetUsage(): void {
+  const previousCount = currentUsage.count;
   currentUsage = {
     date: new Date().toDateString(),
     count: 0,
     requests: []
   };
-  console.log('✅ API usage counter reset');
+  logger.info('✅ API usage counter reset', { previousCount }, 'API_TRACKER');
 }
 
 /**
