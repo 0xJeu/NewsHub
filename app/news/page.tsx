@@ -1,6 +1,6 @@
 import ArticleGrid from "@/components/ArticleGrid";
-import NavBar from "@/components/navBar";
-import Footer from "@/components/footer";
+import NavBar from "@/components/NavBar";
+import Footer from "@/components/Footer";
 import { fetchArticles } from "@/lib/api";
 import { buildRotatingQuery } from "@/lib/config/queries";
 

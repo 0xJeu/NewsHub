@@ -1,6 +1,6 @@
 import React from "react";
-import NavBar from "@/components/navBar";
-import Footer from "@/components/footer";
+import NavBar from "@/components/NavBar";
+import Footer from "@/components/Footer";
 import CategoryCardsGrid from "@/components/CategoryCardsGrid";
 
 export default function CategoriesPage() {

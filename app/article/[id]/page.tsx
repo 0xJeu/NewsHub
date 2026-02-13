@@ -1,6 +1,6 @@
-import ArticleCard from "@/components/articleCard";
+import ArticleCard from "@/components/ArticleCard";
 import Link from "next/link";
-import NavBar from "@/components/navBar";
+import NavBar from "@/components/NavBar";
 import { notFound } from "next/navigation";
 
 async function getArticle(id: string): Promise<Article | undefined> {

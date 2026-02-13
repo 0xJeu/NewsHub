@@ -1,7 +1,7 @@
 import { fetchArticlesByCategory } from '@/lib/api';
 import { CATEGORIES, getCategoryBySlug } from '@/lib/config/categories';
-import NavBar from '@/components/navBar';
-import Footer from '@/components/footer';
+import NavBar from '@/components/NavBar';
+import Footer from '@/components/Footer';
 import ArticleGrid from '@/components/ArticleGrid';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';

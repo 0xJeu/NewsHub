@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import ArticleCard from "@/components/articleCard";
+import ArticleCard from "@/components/ArticleCard";
 import { loadMoreArticles } from "@/app/actions";
 import Link from "next/link";
 import { Article } from "@/types";
