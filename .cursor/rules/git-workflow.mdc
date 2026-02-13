@@ -1,0 +1,67 @@
+---
+description: Git workflow and version control rules
+alwaysApply: true
+---
+
+# Git Workflow Rules
+
+## CRITICAL: Git Push Policy
+
+**NEVER push to remote repositories (git push) unless explicitly requested by the user.**
+
+### What You CAN Do Without Permission:
+- ✅ `git status` - Check repository status
+- ✅ `git diff` - View changes
+- ✅ `git add` - Stage files
+- ✅ `git commit` - Commit locally
+- ✅ `git log` - View history
+- ✅ `git branch` - List/manage branches
+- ✅ `git checkout` - Switch branches
+- ✅ `git merge` - Merge branches locally
+
+### What Requires EXPLICIT User Permission:
+- ❌ `git push` - Push to remote
+- ❌ `git push origin <branch>` - Push specific branch
+- ❌ `git push --force` - Force push
+- ❌ Any command that sends changes to remote repository
+
+## Correct Workflow
+
+### When Making Changes:
+
+```bash
+# 1. Make changes and test
+# 2. Stage and commit locally
+git add -A
+git commit -m "commit message"
+
+# 3. STOP HERE and inform user
+# Tell user: "Changes committed locally. Ready to push when you give the command."
+```
+
+### When User Requests Push:
+
+Only when user explicitly says "push", "git push", or "push to GitHub":
+
+```bash
+git push
+# or
+git push origin <branch>
+```
+
+## Examples
+
+### ❌ WRONG - Proactive pushing:
+```bash
+git add -A && git commit -m "fix" && git push
+```
+
+### ✅ CORRECT - Wait for permission:
+```bash
+git add -A && git commit -m "fix"
+# Then tell user: "Committed locally. Let me know when you want to push."
+```
+
+## Summary
+
+The user controls when code goes to the remote repository. Your job is to prepare commits locally and wait for the push command.
