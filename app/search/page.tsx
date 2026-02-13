@@ -17,21 +17,21 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const sortedArticles = articles;
 
   return (
-    <main className="min-h-screen bg-slate-50">
+    <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <NavBar />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-12">
-          <h1 className="text-4xl font-bold text-slate-900 mb-4">
+          <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">
             Search Results
           </h1>
-          <p className="text-slate-500 text-lg">
+          <p className="text-slate-500 dark:text-slate-400 text-lg">
             {query
               ? `Found ${articles.length} results for "${query}"`
               : "Please enter a search term"}
           </p>
           {query && articles.length > 0 && (
-            <p className="text-slate-400 text-sm mt-2">
+            <p className="text-slate-400 dark:text-slate-500 text-sm mt-2">
               Sorted by relevancy and quality score
             </p>
           )}
@@ -43,7 +43,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           />
         ) : (
           <div className="text-center py-20">
-            <p className="text-slate-500 text-lg">No articles found matching your query.</p>
+            <p className="text-slate-500 dark:text-slate-400 text-lg">No articles found matching your query.</p>
           </div>
         )}
       </div>

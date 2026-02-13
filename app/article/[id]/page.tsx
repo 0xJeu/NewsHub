@@ -57,14 +57,14 @@ export default async function Article({ params }: ArticleParams) {
 
   if (!article) {
     return (
-      <main className="min-h-screen bg-gradient-to-r from-gray-100 to-gray-300 py-12 px-4 sm:px-6 lg:px-8">
+      <main className="min-h-screen bg-slate-50 dark:bg-slate-950 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-4">
             Article not found
           </h1>
           <Link
             href="/"
-            className="text-gray-600 hover:text-gray-700 transition-colors duration-300"
+            className="text-slate-600 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors duration-300"
           >
             ← Back to home
           </Link>
@@ -74,7 +74,7 @@ export default async function Article({ params }: ArticleParams) {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-r from-gray-100 to-gray-300 py-12 px-4 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-slate-50 dark:bg-slate-950 py-12 px-4 sm:px-6 lg:px-8">
       <NavBar />
       <div className="max-w-3xl mx-auto">
         <ArticleCard
@@ -89,7 +89,7 @@ export default async function Article({ params }: ArticleParams) {
         <div className="mt-6">
           <Link
             href="/"
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-300"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-slate-600 dark:bg-slate-700 hover:bg-slate-700 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 dark:focus:ring-slate-400 transition-colors duration-300"
           >
             ← Back to home
           </Link>

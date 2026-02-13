@@ -101,7 +101,7 @@ export default async function Home() {
 
         {/* Newsletter Section */}
         <section className="mb-20">
-          <div className="bg-slate-900 rounded-3xl p-8 md:p-16 text-center overflow-hidden relative">
+          <div className="bg-slate-900 dark:bg-slate-950 rounded-3xl p-8 md:p-16 text-center overflow-hidden relative">
             <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
               <svg className="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                 <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" />
@@ -112,7 +112,7 @@ export default async function Home() {
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
                 Stay Ahead of the Curve
               </h2>
-              <p className="text-slate-300 mb-8 text-lg">
+              <p className="text-slate-300 dark:text-slate-400 mb-8 text-lg">
                 Get the latest breaking news and in-depth analysis delivered directly to your inbox every morning.
               </p>
               
@@ -120,12 +120,12 @@ export default async function Home() {
                 <input
                   type="email"
                   placeholder="Enter your email address"
-                  className="flex-grow px-6 py-3.5 rounded-full text-slate-900 bg-white border-2 border-transparent focus:outline-none focus:border-primary-500 focus:ring-0"
+                  className="flex-grow px-6 py-3.5 rounded-full text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 border-2 border-transparent focus:outline-none focus:border-primary-500 focus:ring-0"
                   required
                 />
                 <button
                   type="submit"
-                  className="bg-primary-600 text-white px-8 py-3.5 rounded-full font-semibold hover:bg-primary-500 transition-colors shadow-lg shadow-primary-900/20"
+                  className="bg-primary-600 dark:bg-primary-500 text-white px-8 py-3.5 rounded-full font-semibold hover:bg-primary-500 dark:hover:bg-primary-400 transition-colors shadow-lg shadow-primary-900/20"
                 >
                   Subscribe
                 </button>

@@ -428,6 +428,78 @@ export const CATEGORIES: CategoryConfig[] = [
       'disease OR treatment OR vaccine OR drug',
       'wellness OR mental health OR nutrition'
     ]
+  },
+
+  {
+    slug: 'space',
+    name: 'Space',
+    description: 'Space exploration, astronomy, astrophysics, and cosmic discoveries',
+    color: 'bg-indigo-500',
+    icon: '🚀',
+    preferredSources: [
+      'space.com',
+      'nasa.gov',
+      'jpl.nasa.gov',
+      'esa.int',
+      'spacenews.com',
+      'universetoday.com',
+      'scientificamerican.com',
+      'nature.com',
+      'newscientist.com',
+      'arstechnica.com'
+    ],
+    keywords: {
+      strong: [
+        'space',
+        'astronomy',
+        'astrophysics',
+        'spacecraft',
+        'astronaut',
+        'rocket',
+        'nasa',
+        'satellite',
+        'mars',
+        'moon',
+        'planet',
+        'galaxy',
+        'telescope',
+        'orbit',
+        'launch',
+        'spacex',
+        'mission',
+        'cosmic',
+        'universe',
+        'asteroid'
+      ],
+      weak: [
+        'exploration',
+        'station',
+        'international space station',
+        'iss',
+        'hubble',
+        'webb',
+        'artemis',
+        'starship',
+        'falcon',
+        'crew dragon',
+        'constellation'
+      ],
+      exclude: [
+        'sports',
+        'entertainment',
+        'movie',
+        'music',
+        'celebrity',
+        'game',
+        'political space'
+      ]
+    },
+    queries: [
+      'space OR astronomy OR astrophysics',
+      'spacecraft OR satellite OR rocket OR launch',
+      'nasa OR spacex OR "space mission" OR astronaut',
+      'mars OR moon OR planet OR galaxy'
+    ]
   }
 ];
 
