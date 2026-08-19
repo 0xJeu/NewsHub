@@ -7,9 +7,9 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 
 interface CategoryPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 /**
@@ -25,7 +25,8 @@ export async function generateStaticParams() {
  * Generate metadata for each category page
  */
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
-  const category = getCategoryBySlug(params.slug);
+  const { slug } = await params;
+  const category = getCategoryBySlug(slug);
 
   if (!category) {
     return {
@@ -43,7 +44,8 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
  * Category page component
  */
 export default async function CategoryPage({ params }: CategoryPageProps) {
-  const category = getCategoryBySlug(params.slug);
+  const { slug } = await params;
+  const category = getCategoryBySlug(slug);
 
   if (!category) {
     notFound();
@@ -96,6 +98,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         {articles.length > 0 ? (
           <ArticleGrid
             initialArticles={articles}
+            loadMoreContext={{ strategy: 'category', categorySlug: category.slug }}
           />
         ) : (
           <div className="text-center py-20">

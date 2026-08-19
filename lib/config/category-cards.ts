@@ -52,6 +52,18 @@ function getCategoryColor(index: number): string {
   return COLOR_PALETTE[index % COLOR_PALETTE.length];
 }
 
+export function resolveCategoryCardColor(categoryColor: string): string {
+  const tone = categoryColor.match(/bg-([a-z]+)-\d+/)?.[1];
+  if (!tone) {
+    return COLOR_PALETTE[17];
+  }
+
+  return (
+    COLOR_PALETTE.find((color) => color.includes(`bg-${tone}-50`)) ||
+    COLOR_PALETTE[17]
+  );
+}
+
 /**
  * Optional: Map specific category slugs to specific colors
  * If not defined, colors are assigned by index

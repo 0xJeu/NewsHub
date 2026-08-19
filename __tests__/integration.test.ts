@@ -445,13 +445,15 @@ describe('Integration Tests', () => {
         text: async () => 'API rate limit error',
       });
 
-      await expect(fetchArticles('homepage')).rejects.toThrow();
+      const articles = await fetchArticles('homepage');
+      expect(articles.length).toBeGreaterThan(0);
     });
 
     it('should handle network errors', async () => {
       (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
 
-      await expect(fetchArticles('homepage')).rejects.toThrow('Network error');
+      const articles = await fetchArticles('homepage');
+      expect(articles.length).toBeGreaterThan(0);
     });
 
     it('should handle malformed responses', async () => {

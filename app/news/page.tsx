@@ -27,6 +27,7 @@ export default async function NewsPage() {
 
         <ArticleGrid
           initialArticles={sortedArticles}
+          loadMoreContext={{ strategy: "homepage", homepageQuery }}
         />
       </div>
 

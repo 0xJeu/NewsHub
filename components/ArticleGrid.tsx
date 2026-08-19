@@ -2,12 +2,41 @@
 
 import React, { useState } from "react";
 import ArticleCard from "@/components/ArticleCard";
-import { loadMoreArticles } from "@/app/actions";
+import {
+  loadMoreArticles,
+  loadMoreCategoryArticles,
+  loadMoreSearchResults,
+} from "@/app/actions";
 import Link from "next/link";
 import { Article } from "@/types";
 import { logger } from "@/lib/logger";
 
-export default function ArticleGrid({ initialArticles }: { initialArticles: Article[] }) {
+type LoadMoreContext =
+  | { strategy: "homepage"; homepageQuery: string }
+  | { strategy: "category"; categorySlug: string }
+  | { strategy: "search"; searchQuery: string };
+
+interface ArticleGridProps {
+  initialArticles: Article[];
+  loadMoreContext: LoadMoreContext;
+}
+
+export async function loadMoreByContext(
+  loadMoreContext: LoadMoreContext,
+  page: number
+): Promise<Article[]> {
+  if (loadMoreContext.strategy === "homepage") {
+    return loadMoreArticles(page, loadMoreContext.homepageQuery);
+  }
+
+  if (loadMoreContext.strategy === "category") {
+    return loadMoreCategoryArticles(loadMoreContext.categorySlug, page);
+  }
+
+  return loadMoreSearchResults(loadMoreContext.searchQuery, page);
+}
+
+export default function ArticleGrid({ initialArticles, loadMoreContext }: ArticleGridProps) {
   const [articles, setArticles] = useState<Article[]>(initialArticles);
   const [page, setPage] = useState(2); // Start fetching from page 2 (page 1 is initial)
   const [isLoading, setIsLoading] = useState(false);
@@ -18,7 +47,7 @@ export default function ArticleGrid({ initialArticles }: { initialArticles: Arti
     const startTime = Date.now();
     
     try {
-      const newArticles = await loadMoreArticles(page);
+      const newArticles = await loadMoreByContext(loadMoreContext, page);
       
       if (newArticles.length === 0) {
         setHasMore(false);

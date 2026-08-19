@@ -4,11 +4,12 @@ import Footer from "@/components/Footer";
 import { searchArticles } from "@/lib/api";
 
 interface SearchPageProps {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const query = typeof searchParams.q === "string" ? searchParams.q : "";
+  const { q } = await searchParams;
+  const query = typeof q === "string" ? q : "";
 
   // Fetch using 'search' strategy (relevancy sorting)
   const articles = query ? await searchArticles(query, { pageSize: 100 }) : [];
@@ -40,6 +41,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         {sortedArticles.length > 0 ? (
           <ArticleGrid
             initialArticles={sortedArticles}
+            loadMoreContext={{ strategy: "search", searchQuery: query }}
           />
         ) : (
           <div className="text-center py-20">

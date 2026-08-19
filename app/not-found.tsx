@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import Link from "next/link";
 
 const TVStaticBackground: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -108,9 +109,9 @@ const TV404Page: React.FC = () => {
         <h2 style={{ fontSize: "2rem", margin: "0" }}>CHANNEL NOT FOUND</h2>
         <p style={{ fontSize: "1.2rem", marginTop: "2rem" }}>
           Please stand by or return to our{" "}
-          <a href="/" style={{ color: "#00ff00" }}>
+          <Link href="/" style={{ color: "#00ff00" }}>
             main broadcast
-          </a>
+          </Link>
           .
         </p>
       </div>

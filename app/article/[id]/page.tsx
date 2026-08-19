@@ -47,13 +47,14 @@ interface Article {
 }
 
 interface ArticleParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function Article({ params }: ArticleParams) {
-  const article = await getArticle(params.id);
+  const { id } = await params;
+  const article = await getArticle(id);
 
   if (!article) {
     return (
